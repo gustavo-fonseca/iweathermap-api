@@ -157,6 +157,11 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", cast=str)
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)
 EMAIL_PORT = config("EMAIL_PORT", cast=str)
 
+
+# OpenWeatherMap settings
+OPENWEATHERMAP_API_KEY = config("OPENWEATHERMAP_API_KEY", cast=str)
+
+
 # sentry settings
 if DEBUG is False:
     sentry_sdk.init(
