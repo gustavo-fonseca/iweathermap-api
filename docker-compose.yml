@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+
+    iweathermap_backend:
+        container_name: iweathermap_backend
+        build:
+            context: .
+            args:
+                - ENV=${ENV}
+                - TIMEZONE=${TIMEZONE}
+        command: tail -f /dev/null
+        ports:
+            - 8000:8000
+        volumes:
+            - .:/app
+        networks:
+            - iweathermap_database_net
+
+    iweathermap_database:
+        container_name: iweathermap_database
+        image: postgres:12
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_DB: ${DATABASE_NAME}
+            POSTGRES_USER: ${DATABASE_USER}
+            POSTGRES_PASSWORD: ${DATABASE_PASS}
+            TZ: ${TIMEZONE}
+            PGTZ: ${TIMEZONE}
+        volumes:
+            - iweathermap_database_data:/var/lib/postgresql/data
+        networks:
+            - iweathermap_database_net
+        depends_on: 
+            - iweathermap_backend
+
+volumes:
+    iweathermap_database_data:
+
+networks:
+    iweathermap_database_net:
