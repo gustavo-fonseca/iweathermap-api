@@ -1,3 +1,5 @@
+import pytz
+
 from datetime import datetime
 from django.conf import settings
 
@@ -15,7 +17,7 @@ class OpenWeatherMap:
         self.city_name = city_name
         self.state_name = state_name
         self.api_base_url = api_base_url
-        self.api_key = api_key | settings.OPENWEATHERMAP_API_KEY
+        self.api_key = api_key or settings.OPENWEATHERMAP_API_KEY
         self.api_units = api_units
 
     @property
@@ -71,8 +73,8 @@ class OpenWeatherMap:
                 "2020-8-20": [
                     {
                         "temp": 19.16, "feels_like": 18.2, "temp_min": 18,
-                        "temp_max": 19.16, "humidity": 55,
-                        "datetime": datetime.datetime(2020, 8, 20, 9, 0)
+                        "temp_max": 19.16, "humidity": 55, "weekday": "Monday",
+                        "datetime": datetime.datetime(2020, 8, 20, 9, 0),
                     },
                     {...}
                 ],
@@ -103,7 +105,13 @@ class OpenWeatherMap:
 
                 forecast_dt = datetime.strptime(
                     forecast.get("dt_txt"), "%Y-%m-%d %H:%M:%S")
-                forecast_dt_txt = forecast_dt.strftime("%Y-%m-%d")
+
+                # setting up django timezone
+                forecast_dt_utc = pytz.utc.localize(forecast_dt)
+                forecast_dt_tz = forecast_dt_utc.astimezone(
+                    pytz.timezone(settings.TIME_ZONE))
+
+                forecast_dt_txt = forecast_dt_tz.strftime("%Y-%m-%d")
 
                 forecasts.setdefault(forecast_dt_txt, [])
 
@@ -113,7 +121,8 @@ class OpenWeatherMap:
                     "temp_min": forecast_main.get('temp_min'),
                     "temp_max": forecast_main.get('temp_max'),
                     "humidity": forecast_main.get('humidity'),
-                    "datetime": forecast_dt
+                    "datetime": forecast_dt_tz,
+                    "weekday": forecast_dt_tz.strftime("%A")
                 })
 
         return forecasts

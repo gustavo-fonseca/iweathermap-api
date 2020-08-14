@@ -41,6 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # local apps
+    'forecast',
+    # third part django packages
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django_filters",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -121,13 +128,14 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Django Rest Framework settings
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES":
-    ["rest_framework.permissions.IsAuthenticated"],
-    "DEFAULT_FILTER_BACKENDS": [
-        "rest_framework.filters.SearchFilter",
-        "rest_framework.filters.OrderingFilter",
-        "django_filters.rest_framework.DjangoFilterBackend",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated"
     ],
+    # "DEFAULT_FILTER_BACKENDS": [
+    #     "rest_framework.filters.SearchFilter",
+    #     "rest_framework.filters.OrderingFilter",
+    #     "django_filters.rest_framework.DjangoFilterBackend",
+    # ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_jwt.authentication.JSONWebTokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
