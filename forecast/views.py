@@ -6,7 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 from core.openweathermap import OpenWeatherMap
 
 
-class NextFiveDaysForecastViewSet(viewsets.GenericViewSet):
+class ForecastViewSet(viewsets.GenericViewSet):
 
     @swagger_auto_schema(responses={200: '', 400: ''})
     @action(
@@ -27,7 +27,37 @@ class NextFiveDaysForecastViewSet(viewsets.GenericViewSet):
             open_weather_map = OpenWeatherMap(city_name, state_name=state_name)
 
             return Response(
-                open_weather_map.get_next_five_days_max_humidity(),
+                open_weather_map.get_five_days_forecast_max_humidity(),
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            {
+                "message": "Please provide a valid city name"
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    @swagger_auto_schema(responses={200: '', 400: ''})
+    @action(
+        methods=["get"],
+        detail=False,
+        url_path="next-days-rain-chances",
+        url_name="next-days-rain-chances",
+        permission_classes=[permissions.AllowAny]
+    )
+    def next_days_rain_chances(self, request):
+        """
+        Get next five days forecast with max humidity data
+        """
+        city_name = request.query_params.get("city_name")
+        state_name = request.query_params.get("state_name")
+
+        if city_name:
+            open_weather_map = OpenWeatherMap(city_name, state_name=state_name)
+
+            return Response(
+                open_weather_map.get_days_rain_chances(),
                 status=status.HTTP_200_OK
             )
 

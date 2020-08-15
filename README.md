@@ -52,8 +52,9 @@ find . -name "*.py" -and -not -name "0*.py" | xargs pylint
 
 ## Features
 
-- [ ] Get next five days forecast with 3 hour data
-- [ ] Get next five days forecast with max humidity data
+- [x] Get next five days forecast with 3 hour data
+- [x] Get next five days forecast with max humidity data
+- [x] Get next few days with rain changes
 
 
 ### Email Queue
@@ -69,6 +70,5 @@ find . -name "*.py" -and -not -name "0*.py" | xargs pylint
 - [ ] AWS S3
 
 ### Docker and Swarm
-- [ ] Dockerize project
+- [x] Dockerize project
 - [ ] Swarm mode
-- [ ] Docker secrets
