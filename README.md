@@ -52,22 +52,26 @@ find . -name "*.py" -and -not -name "0*.py" | xargs pylint
 
 ## Features
 
-- [x] Get next five days forecast with 3 hour data
-- [x] Get next five days forecast with max humidity data
+### Forecast
+
+- [x] Get next five days with every 3 hour data
+- [x] Get next five days with max humidity data
 - [x] Get next few days with rain changes
+
+### Notification
+
+- [ ] Set up email for rain notifications
+- [ ] Task for rain notifications
 
 
 ### Email Queue
 - [ ] Redis queue to send email
 
 ### Audit
-- [ ] Tracking application error (Sentry)
+- [x] Tracking application error (Sentry)
 
 ### CI/CD
 - [ ] Drone CI
-
-### Media/Static files storage
-- [ ] AWS S3
 
 ### Docker and Swarm
 - [x] Dockerize project

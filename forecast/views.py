@@ -67,3 +67,17 @@ class ForecastViewSet(viewsets.GenericViewSet):
             },
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class NotificationViewSet(viewsets.GenericViewSet):
+
+    @swagger_auto_schema(responses={200: '', 400: ''})
+    @action(
+        methods=["post"],
+        detail=False,
+        url_path="email-subscription",
+        url_name="email-subscription",
+        permission_classes=[permissions.AllowAny]
+    )
+    def email_subscription(self, request):
+        pass
