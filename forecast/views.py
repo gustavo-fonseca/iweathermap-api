@@ -28,41 +28,13 @@ class ForecastViewSet(viewsets.ViewSet):
         """
         city_id = request.query_params.get("city_id", "")
 
-        if city_id:
+        if city_id != "":
             weather_map = OpenWeatherMap(city_id)
 
             return Response(weather_map.get_five_days_forecast(),
                 status=status.HTTP_200_OK)
 
-        return Response({"message": "Please provide a valid city id"},
-            status=status.HTTP_400_BAD_REQUEST)
-
-
-    @swagger_auto_schema(responses={200: '', 400: 'Please provide a valid city name"'})
-    @action(
-        methods=["get"],
-        detail=False,
-        url_path="next-days-rain-chances",
-        url_name="next-days-rain-chances",
-        permission_classes=[permissions.AllowAny]
-    )
-    def next_days_rain_chances(self, request):
-        """Next few days with raining chances
-
-        Get next five days forecast with max humidity data over 70%
-
-        Required query params: city_id
-
-        """
-        city_id = request.query_params.get("city_id", "")
-
-        if city_id:
-            open_weather_map = OpenWeatherMap(city_id)
-
-            return Response(open_weather_map.get_days_rain_chances(),
-                status=status.HTTP_200_OK)
-
-        return Response({"message": "Please provide a valid city name"},
+        return Response({"message": "Please provide a valid city_id"},
             status=status.HTTP_400_BAD_REQUEST)
 
 

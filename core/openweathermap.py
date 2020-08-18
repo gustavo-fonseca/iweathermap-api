@@ -9,25 +9,23 @@ from core.contants import WEATHER_ICONS
 
 class OpenWeatherMapBase:
     """OpenWeatherMap Base class
-    Implements OpenWeatherMap's base attrs getters and setters
-    and its validation
+    Implements OpenWeatherMap's base attrs getters and setters and its validation
     """
+
     def __init__(self,
                  city_id,
-                 state_name="br",
                  base_url="http://api.openweathermap.org/data/2.5/",
                  units="metric",
+                 rain_humidity=70,
                  api_key=None,
-                 timezone=None,
-                 rain_humidity=70):
+                 timezone=None):
         self.city_id = city_id
-        self.state_name = state_name
         self.base_url = base_url
         self.units = units
+        self.rain_humidity = rain_humidity
         self.api_key = api_key or settings.OPENWEATHERMAP_API_KEY
         self.timezone = timezone or settings.TIME_ZONE
         self.forecasts = None
-        self.rain_humidity = rain_humidity
 
     @property
     def city_id(self) -> str:
@@ -39,17 +37,6 @@ class OpenWeatherMapBase:
             self.__city_id = city_id
         else:
             raise TypeError("city_id must a str instance")
-
-    @property
-    def state_name(self) -> str:
-        return self.__state_name
-
-    @state_name.setter
-    def state_name(self, state_name: str):
-        if isinstance(state_name, str):
-            self.__state_name = state_name
-        else:
-            raise TypeError("state_name must a str instance")
 
     @property
     def base_url(self) -> str:
@@ -72,6 +59,17 @@ class OpenWeatherMapBase:
             self.__units = units
         else:
             raise ValueError("units must be set as 'metric' or 'imperial'")
+
+    @property
+    def rain_humidity(self) -> str:
+        return self.__rain_humidity
+
+    @rain_humidity.setter
+    def rain_humidity(self, rain_humidity: int):
+        if isinstance(rain_humidity, int):
+            self.__rain_humidity = rain_humidity
+        else:
+            raise TypeError("rain_humidity must a int instance")
 
     @property
     def api_key(self) -> str:
@@ -102,7 +100,7 @@ class OpenWeatherMap(OpenWeatherMapBase):
 
 
     def __get_default_payload(self) -> dict:
-        """Returns url default params for openweathermap's api
+        """Get default params payload for openweathermap's api
 
         Returns:
             dict: default params' payload
@@ -111,23 +109,25 @@ class OpenWeatherMap(OpenWeatherMapBase):
         return {"appid": self.api_key, "units": self.units}
 
 
-    def __compute_raining_days(self):
+    def __compute_raining_days(self) -> list:
         """Compute raining days based on humidity forecast
 
         Returns:
-            list: list of raining days
+            str:
+
+            "Monday, Tuesday and Friday"
 
         """
 
         raining_days = []
 
-        for dt_txt, forecast in self.forecasts.items():
+        for _, forecast in self.forecasts.items():
             # get the max humidity forecast per day
             forecast_max_humidity = max(forecast, key=lambda d: d['humidity'])
-            if forecast_max_humidity.get('humidity') > 70:
+            if forecast_max_humidity.get('humidity') > self.rain_humidity:
                 raining_days.append(forecast_max_humidity.get('weekday'))
-            
-        return raining_days
+
+        return words_separator(raining_days)
 
 
     def get_five_days_forecast(self) -> dict:
@@ -164,8 +164,6 @@ class OpenWeatherMap(OpenWeatherMapBase):
         response = requests.get(self.__get_endpoint("forecast"),
             params=params_payload)
 
-        forecasts = {}
-
         payload = {
             "data": {},
             "raining_days_text": "",
@@ -173,10 +171,10 @@ class OpenWeatherMap(OpenWeatherMapBase):
         }
 
         if response.status_code == requests.codes.ok:
+            # Checks if respose's status_code is 200 (OK)
 
             data = response.json()
 
-            # Checks if respose's status_code is 200 (OK)
             for forecast in data.get('list'):
                 forecast_main = forecast.get('main')
 
@@ -189,9 +187,9 @@ class OpenWeatherMap(OpenWeatherMapBase):
 
                 forecast_dt_txt = forecast_dt.strftime("%Y-%m-%d")
 
-                forecasts.setdefault(forecast_dt_txt, [])
+                payload["data"].setdefault(forecast_dt_txt, [])
 
-                forecasts[forecast_dt_txt].append({
+                payload["data"][forecast_dt_txt].append({
                     "temp": forecast_main.get('temp'),
                     "feels_like": forecast_main.get('feels_like'),
                     "temp_min": forecast_main.get('temp_min'),
@@ -202,22 +200,16 @@ class OpenWeatherMap(OpenWeatherMapBase):
                     "weather_icon": WEATHER_ICONS[forecast.get('weather')[0].get("main")]
                 })
 
-            self.forecasts = forecasts
+            self.forecasts = payload["data"]
 
-            city_name = data.get("city").get("name")
-            raining_days_text = words_separator(self.__compute_raining_days())
-
-            payload = {
-                "data": forecasts,
-                "raining_days_text": raining_days_text,
-                "city_name": city_name
-            }
+            payload["raining_days_text"] = self.__compute_raining_days()
+            payload["city_name"] = data.get("city").get("name")
 
         return payload
 
 
     def get_five_days_forecast_max_humidity(self) -> list:
-        """Returns the next five days forecast and the current weather
+        """Get next five days forecast
         give back the max humidity forecast by day
 
         Returns:
@@ -239,8 +231,7 @@ class OpenWeatherMap(OpenWeatherMapBase):
         for dt_txt, forecast in forecast_five_days.items():
             # get the max humidity forecast per day
             forecast_max_humidity = max(forecast, key=lambda d: d['humidity'])
-            if forecast_max_humidity.get('humidity') > self.rain_humidity:
-                forecasts.append(forecast_max_humidity)
+            forecasts.append(forecast_max_humidity)
 
         return forecasts
 
@@ -277,6 +268,10 @@ class OpenWeatherMap(OpenWeatherMapBase):
         """
         Challenge Proposal
         """
-        raining_days_text = self.get_five_days_forecast().get("raining_days_text")
+
+        # request forecast from api
+        self.get_five_days_forecast()
+
+        raining_days_text = self.__compute_raining_days()
 
         print(f"You should take an umbrella in these days: {raining_days_text}")
