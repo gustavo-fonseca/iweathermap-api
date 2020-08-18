@@ -15,5 +15,5 @@ class StringTestCase(TestCase):
         words = words_separator(["Monday"])
         self.assertEqual(words, "Monday")
 
-        words = words_separator([])
-        self.assertEqual(words, "")
+        with self.assertRaises(ValueError):
+            words = words_separator([])

@@ -1,28 +1,20 @@
 
-def words_separator(list_words, separator=", ", end_separator=" and "):
+def words_separator(words_list, sep=", ", end_sep=" and "):
     """Words Separator
 
     Args:
-        list_words (list): list of words
-        separator (str): word separator
-        end_separator (str): word end separator
+        words_list (list): list of words
+        sep (str): word separator
+        end_sep (str): end word separator
 
     Returns:
         str: list of words separated. e.g. "1, 2, 3 and 4"
 
     """
 
-    text = ""
-
-    for index, word in enumerate(list_words):
-        if index == 0:
-            # if the current iteration is the first
-            text += word
-        elif index < len(list_words) - 1:
-            # if the current iteration isn't the first and the last
-            text += separator + word
-        else:
-            # if the current iteration is the last
-            text += end_separator + word
-
-    return text
+    if len(words_list) > 1:
+        return f"{sep.join(words_list[:-1])}{end_sep}{words_list[-1]}"
+    try:
+        return words_list[0]
+    except IndexError:
+        raise ValueError('Must pass at least one element in words_list')
