@@ -65,8 +65,7 @@ cl.display_raining_days()
 ### Forecast
 
 - [x] Get next five days with every 3 hour data
-- [x] Get next five days with max humidity data
-- [x] Get next few days with rain changes
+- [x] City list
 
 ### Audit
 - [x] Tracking application error (Sentry)
