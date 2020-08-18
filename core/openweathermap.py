@@ -18,13 +18,16 @@ class OpenWeatherMapBase:
                  base_url="http://api.openweathermap.org/data/2.5/",
                  units="metric",
                  api_key=None,
-                 timezone=None):
+                 timezone=None,
+                 rain_humidity=70):
         self.city_id = city_id
         self.state_name = state_name
         self.base_url = base_url
         self.units = units
         self.api_key = api_key or settings.OPENWEATHERMAP_API_KEY
         self.timezone = timezone or settings.TIME_ZONE
+        self.forecasts = None
+        self.rain_humidity = rain_humidity
 
     @property
     def city_id(self) -> str:
@@ -97,6 +100,7 @@ class OpenWeatherMap(OpenWeatherMapBase):
         """
         return f"{self.base_url}{service_name}"
 
+
     def __get_default_payload(self) -> dict:
         """Returns url default params for openweathermap's api
 
@@ -105,6 +109,26 @@ class OpenWeatherMap(OpenWeatherMapBase):
 
         """
         return {"appid": self.api_key, "units": self.units}
+
+
+    def __compute_raining_days(self):
+        """Compute raining days based on humidity forecast
+
+        Returns:
+            list: list of raining days
+
+        """
+
+        raining_days = []
+
+        for dt_txt, forecast in self.forecasts.items():
+            # get the max humidity forecast per day
+            forecast_max_humidity = max(forecast, key=lambda d: d['humidity'])
+            if forecast_max_humidity.get('humidity') > 70:
+                raining_days.append(forecast_max_humidity.get('weekday'))
+            
+        return raining_days
+
 
     def get_five_days_forecast(self) -> dict:
         """5 day forecast is available at any location or city.
@@ -149,8 +173,11 @@ class OpenWeatherMap(OpenWeatherMapBase):
         }
 
         if response.status_code == requests.codes.ok:
+
+            data = response.json()
+
             # Checks if respose's status_code is 200 (OK)
-            for forecast in response.json().get('list'):
+            for forecast in data.get('list'):
                 forecast_main = forecast.get('main')
 
                 # setting up datetime timezone
@@ -175,23 +202,19 @@ class OpenWeatherMap(OpenWeatherMapBase):
                     "weather_icon": WEATHER_ICONS[forecast.get('weather')[0].get("main")]
                 })
 
-            city_name = response.json().get("city").get("name")
+            self.forecasts = forecasts
 
-            # compute raining days
-            raining_days = []
-
-            for dt_txt, forecast in forecasts.items():
-                # get the max humidity forecast per day
-                forecast_max_humidity = max(forecast, key=lambda d: d['humidity'])
-                raining_days.append(forecast_max_humidity.get('weekday'))
+            city_name = data.get("city").get("name")
+            raining_days_text = words_separator(self.__compute_raining_days())
 
             payload = {
                 "data": forecasts,
-                "raining_days_text": words_separator(raining_days),
+                "raining_days_text": raining_days_text,
                 "city_name": city_name
             }
 
         return payload
+
 
     def get_five_days_forecast_max_humidity(self) -> list:
         """Returns the next five days forecast and the current weather
@@ -216,9 +239,11 @@ class OpenWeatherMap(OpenWeatherMapBase):
         for dt_txt, forecast in forecast_five_days.items():
             # get the max humidity forecast per day
             forecast_max_humidity = max(forecast, key=lambda d: d['humidity'])
-            forecasts.append(forecast_max_humidity)
+            if forecast_max_humidity.get('humidity') > self.rain_humidity:
+                forecasts.append(forecast_max_humidity)
 
         return forecasts
+
 
     def get_days_rain_chances(self):
         """Get list of next few days with rain chances
@@ -242,10 +267,11 @@ class OpenWeatherMap(OpenWeatherMapBase):
         rain_chances = []
 
         for forecast in forecasts:
-            if forecast.get('humidity') > 70:
+            if forecast.get('humidity') > self.rain_humidity:
                 rain_chances.append(forecast)
 
         return rain_chances
+
 
     def display_raining_days(self):
         """

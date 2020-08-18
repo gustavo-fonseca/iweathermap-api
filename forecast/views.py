@@ -34,7 +34,7 @@ class ForecastViewSet(viewsets.ViewSet):
             return Response(weather_map.get_five_days_forecast(),
                 status=status.HTTP_200_OK)
 
-        return Response({"message": "Please provide a valid city name"},
+        return Response({"message": "Please provide a valid city id"},
             status=status.HTTP_400_BAD_REQUEST)
 
 
