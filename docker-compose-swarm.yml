@@ -4,7 +4,7 @@ services:
     nginx:
         image: gustavofonseca/nginx-wait-for:1.0
         ports:
-            - 81:80
+            - 80:80
         volumes:
             - ./nginx.conf:/etc/nginx/conf.d/default.conf
             - ./iweathermap/media:/media
