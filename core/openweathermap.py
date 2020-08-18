@@ -13,13 +13,13 @@ class OpenWeatherMapBase:
     and its validation
     """
     def __init__(self,
-                 city_name,
+                 city_id,
                  state_name="br",
                  base_url="http://api.openweathermap.org/data/2.5/",
                  units="metric",
                  api_key=None,
                  timezone=None):
-        self.city_name = city_name
+        self.city_id = city_id
         self.state_name = state_name
         self.base_url = base_url
         self.units = units
@@ -27,15 +27,15 @@ class OpenWeatherMapBase:
         self.timezone = timezone or settings.TIME_ZONE
 
     @property
-    def city_name(self) -> str:
-        return self.__city_name
+    def city_id(self) -> str:
+        return self.__city_id
 
-    @city_name.setter
-    def city_name(self, city_name: str):
-        if isinstance(city_name, str):
-            self.__city_name = city_name
+    @city_id.setter
+    def city_id(self, city_id: str):
+        if isinstance(city_id, str):
+            self.__city_id = city_id
         else:
-            raise TypeError("city_name must a str instance")
+            raise TypeError("city_id must a str instance")
 
     @property
     def state_name(self) -> str:
@@ -113,7 +113,7 @@ class OpenWeatherMap(OpenWeatherMapBase):
         Returns:
             dict: 5 days forecast filtered by date / 3 hours data
 
-            # if the given city_name and state_name is valid
+            # if the given city_id and state_name is valid
             {
                 "2020-8-20": [
                     {
@@ -127,7 +127,7 @@ class OpenWeatherMap(OpenWeatherMapBase):
                 "2020-8-21": [...]
             }
 
-            # if the given city_name or state_name is not valid
+            # if the given city_id or state_name is not valid
             {
 
             }
@@ -135,12 +135,18 @@ class OpenWeatherMap(OpenWeatherMapBase):
         """
 
         params_payload = self.__get_default_payload()
-        params_payload["q"] = f"{self.city_name},{self.state_name}"
+        params_payload["id"] = self.city_id
 
         response = requests.get(self.__get_endpoint("forecast"),
             params=params_payload)
 
         forecasts = {}
+
+        payload = {
+            "data": {},
+            "raining_days_text": "",
+            "city_name": ""
+        }
 
         if response.status_code == requests.codes.ok:
             # Checks if respose's status_code is 200 (OK)
@@ -169,21 +175,23 @@ class OpenWeatherMap(OpenWeatherMapBase):
                     "weather_icon": WEATHER_ICONS[forecast.get('weather')[0].get("main")]
                 })
 
-        # compute raining days
-        raining_days = []
+            city_name = response.json().get("city").get("name")
 
-        for dt_txt, forecast in forecasts.items():
-            # get the max humidity forecast per day
-            forecast_max_humidity = max(forecast, key=lambda d: d['humidity'])
-            raining_days.append(forecast_max_humidity.get('weekday'))
+            # compute raining days
+            raining_days = []
 
-        payload = {
-            "data": forecasts,
-            "raining_days_text": words_separator(raining_days)
-        }
+            for dt_txt, forecast in forecasts.items():
+                # get the max humidity forecast per day
+                forecast_max_humidity = max(forecast, key=lambda d: d['humidity'])
+                raining_days.append(forecast_max_humidity.get('weekday'))
+
+            payload = {
+                "data": forecasts,
+                "raining_days_text": words_separator(raining_days),
+                "city_name": city_name
+            }
 
         return payload
-        # return forecasts
 
     def get_five_days_forecast_max_humidity(self) -> list:
         """Returns the next five days forecast and the current weather

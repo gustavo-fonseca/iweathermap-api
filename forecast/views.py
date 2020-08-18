@@ -23,14 +23,13 @@ class ForecastViewSet(viewsets.ViewSet):
 
         Get next five days forecast. It includes weather data every 3 hours.
 
-        Required query params: city_name
+        Required query params: city_id
 
         """
-        city_name = request.query_params.get("city_name", "")
-        state_name = request.query_params.get("state_name", "")
+        city_id = request.query_params.get("city_id", "")
 
-        if city_name:
-            weather_map = OpenWeatherMap(city_name, state_name=state_name)
+        if city_id:
+            weather_map = OpenWeatherMap(city_id)
 
             return Response(weather_map.get_five_days_forecast(),
                 status=status.HTTP_200_OK)
@@ -52,14 +51,13 @@ class ForecastViewSet(viewsets.ViewSet):
 
         Get next five days forecast with max humidity data over 70%
 
-        Required query params: city_name
+        Required query params: city_id
 
         """
-        city_name = request.query_params.get("city_name", "")
-        state_name = request.query_params.get("state_name", "")
+        city_id = request.query_params.get("city_id", "")
 
-        if city_name:
-            open_weather_map = OpenWeatherMap(city_name, state_name=state_name)
+        if city_id:
+            open_weather_map = OpenWeatherMap(city_id)
 
             return Response(open_weather_map.get_days_rain_chances(),
                 status=status.HTTP_200_OK)
