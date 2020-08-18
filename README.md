@@ -40,6 +40,26 @@ docker exec -it iweathermap_backend bash -c "./pylint.sh"
 
 ```
 
+### Mini Challenge 
+```python
+
+# Run Python on docker
+docker exec -it iweathermap_backend python
+
+# 
+from core.openweathermap import OpenWeatherMap
+
+cl = OpenWeatherMap(
+    "Ribeirão Preto",
+    timezone="America/Sao_Paulo"
+    api_key="OpenWeatherMapKey"
+)
+
+cl.display_raining_days()
+
+> "You should take an umbrella in these days: Tuesday, Wednesday and Sunday"
+```
+
 ## Features
 
 ### Forecast

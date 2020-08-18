@@ -19,8 +19,12 @@ class ForecastViewSet(viewsets.ViewSet):
         permission_classes=[permissions.AllowAny]
     )
     def next_five_days_forecast(self, request):
-        """
+        """Next five days forecast
+
         Get next five days forecast. It includes weather data every 3 hours.
+
+        Required query params: city_name
+
         """
         city_name = request.query_params.get("city_name", "")
         state_name = request.query_params.get("state_name", "")
@@ -44,8 +48,12 @@ class ForecastViewSet(viewsets.ViewSet):
         permission_classes=[permissions.AllowAny]
     )
     def next_days_rain_chances(self, request):
-        """
+        """Next few days with raining chances
+
         Get next five days forecast with max humidity data over 70%
+
+        Required query params: city_name
+
         """
         city_name = request.query_params.get("city_name", "")
         state_name = request.query_params.get("state_name", "")
@@ -61,6 +69,12 @@ class ForecastViewSet(viewsets.ViewSet):
 
 
 class CityViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """City List
+
+    OpenWeatherAPI cities list
+
+    required query params: search=city name
+    """
 
     queryset = City.objects.none()
     serializer_class = CitySerializer

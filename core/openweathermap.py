@@ -17,12 +17,14 @@ class OpenWeatherMapBase:
                  state_name="br",
                  base_url="http://api.openweathermap.org/data/2.5/",
                  units="metric",
-                 api_key=None):
+                 api_key=None,
+                 timezone=None):
         self.city_name = city_name
         self.state_name = state_name
         self.base_url = base_url
         self.units = units
         self.api_key = api_key or settings.OPENWEATHERMAP_API_KEY
+        self.timezone = timezone or settings.TIME_ZONE
 
     @property
     def city_name(self) -> str:
@@ -149,7 +151,7 @@ class OpenWeatherMap(OpenWeatherMapBase):
                 forecast_dt = strptime_utc_to_tz(
                     date_string=forecast.get('dt_txt'),
                     format_string="%Y-%m-%d %H:%M:%S",
-                    tz_string=settings.TIME_ZONE
+                    tz_string=self.timezone
                 )
 
                 forecast_dt_txt = forecast_dt.strftime("%Y-%m-%d")
@@ -167,6 +169,7 @@ class OpenWeatherMap(OpenWeatherMapBase):
                     "weather_icon": WEATHER_ICONS[forecast.get('weather')[0].get("main")]
                 })
 
+        # compute raining days
         raining_days = []
 
         for dt_txt, forecast in forecasts.items():
@@ -235,3 +238,11 @@ class OpenWeatherMap(OpenWeatherMapBase):
                 rain_chances.append(forecast)
 
         return rain_chances
+
+    def display_raining_days(self):
+        """
+        Challenge Proposal
+        """
+        raining_days_text = self.get_five_days_forecast().get("raining_days_text")
+
+        print(f"You should take an umbrella in these days: {raining_days_text}")

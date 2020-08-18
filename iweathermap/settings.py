@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-import datetime
 from pathlib import Path
 
 import sentry_sdk
@@ -130,9 +129,9 @@ MEDIA_ROOT = SETTINGS_DIR / "media"
 
 # Django Rest Framework settings
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated"
-    ],
+    # "DEFAULT_PERMISSION_CLASSES": [
+    #     "rest_framework.permissions.IsAuthenticated"
+    # ],
     "DEFAULT_FILTER_BACKENDS": [
         "rest_framework.filters.SearchFilter",
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -156,6 +155,16 @@ OPENWEATHERMAP_API_KEY = config("OPENWEATHERMAP_API_KEY", cast=str)
 # CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = config("CORS_ORIGIN_WHITELIST", cast=Csv())
+
+
+# Swagger docs
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Public': {
+            'type': 'Allow any'
+      }
+   }
+}
 
 
 # sentry settings
