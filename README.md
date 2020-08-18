@@ -32,6 +32,13 @@ docker stack deploy -c <(docker-compose -f docker-compose-swarm.yml config) iwea
 
 ```
 
+### Running tests
+```bash
+
+docker exec -it iweathermap_backend python manage.py test
+
+```
+
 ### Running lint based on Google Style Guide in development mode
 ```bash
 
@@ -46,17 +53,17 @@ docker exec -it iweathermap_backend bash -c "./pylint.sh"
 # Run Python on docker
 docker exec -it iweathermap_backend python
 
-# 
+# Copy and past the following code
 from core.openweathermap import OpenWeatherMap
 
 cl = OpenWeatherMap(
-    "Ribeirão Preto",
-    timezone="America/Sao_Paulo"
-    api_key="OpenWeatherMapKey"
-)
+    city_id="3451328",
+    timezone="America/Sao_Paulo",
+    api_key="Your-OpenWeatherMap-Key")
 
 cl.display_raining_days()
 
+# Should display something just like this
 > "You should take an umbrella in these days: Tuesday, Wednesday and Sunday"
 ```
 
