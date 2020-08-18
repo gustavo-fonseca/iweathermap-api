@@ -4,11 +4,13 @@ from rest_framework.decorators import action
 from drf_yasg.utils import swagger_auto_schema
 
 from core.openweathermap import OpenWeatherMap
+from forecast.models import City
+from forecast.serializers import CitySerializer
 
 
-class ForecastViewSet(viewsets.GenericViewSet):
+class ForecastViewSet(viewsets.ViewSet):
 
-    @swagger_auto_schema(responses={200: '', 400: ''})
+    @swagger_auto_schema(responses={200: '', 400: 'Please provide a valid city name"'})
     @action(
         methods=["get"],
         detail=False,
@@ -18,27 +20,22 @@ class ForecastViewSet(viewsets.GenericViewSet):
     )
     def next_five_days_forecast(self, request):
         """
-        Get next five days forecast with max humidity data
+        Get next five days forecast. It includes weather data every 3 hours.
         """
-        city_name = request.query_params.get("city_name")
-        state_name = request.query_params.get("state_name")
+        city_name = request.query_params.get("city_name", "")
+        state_name = request.query_params.get("state_name", "")
 
         if city_name:
-            open_weather_map = OpenWeatherMap(city_name, state_name=state_name)
+            weather_map = OpenWeatherMap(city_name, state_name=state_name)
 
-            return Response(
-                open_weather_map.get_five_days_forecast_max_humidity(),
-                status=status.HTTP_200_OK
-            )
+            return Response(weather_map.get_five_days_forecast(),
+                status=status.HTTP_200_OK)
 
-        return Response(
-            {
-                "message": "Please provide a valid city name"
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"message": "Please provide a valid city name"},
+            status=status.HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(responses={200: '', 400: ''})
+
+    @swagger_auto_schema(responses={200: '', 400: 'Please provide a valid city name"'})
     @action(
         methods=["get"],
         detail=False,
@@ -48,36 +45,29 @@ class ForecastViewSet(viewsets.GenericViewSet):
     )
     def next_days_rain_chances(self, request):
         """
-        Get next five days forecast with max humidity data
+        Get next five days forecast with max humidity data over 70%
         """
-        city_name = request.query_params.get("city_name")
-        state_name = request.query_params.get("state_name")
+        city_name = request.query_params.get("city_name", "")
+        state_name = request.query_params.get("state_name", "")
 
         if city_name:
             open_weather_map = OpenWeatherMap(city_name, state_name=state_name)
 
-            return Response(
-                open_weather_map.get_days_rain_chances(),
-                status=status.HTTP_200_OK
-            )
+            return Response(open_weather_map.get_days_rain_chances(),
+                status=status.HTTP_200_OK)
 
-        return Response(
-            {
-                "message": "Please provide a valid city name"
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"message": "Please provide a valid city name"},
+            status=status.HTTP_400_BAD_REQUEST)
 
 
-class NotificationViewSet(viewsets.GenericViewSet):
+class CityViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
-    @swagger_auto_schema(responses={200: '', 400: ''})
-    @action(
-        methods=["post"],
-        detail=False,
-        url_path="email-subscription",
-        url_name="email-subscription",
-        permission_classes=[permissions.AllowAny]
-    )
-    def email_subscription(self, request):
-        pass
+    queryset = City.objects.none()
+    serializer_class = CitySerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        # only return results if search length is greater than 3 chars
+        if len(self.request.query_params.get("search", "")) >= 3:
+            return City.objects.filter(name__istartswith=self.request.query_params.get("search"))
+        return City.objects.none()

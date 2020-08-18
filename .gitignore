@@ -135,10 +135,10 @@ dmypy.json
 .vscode
 .DS_Store
 
-iweathermap-api/static_files/*
-!iweathermap-api/static_files/.gitkeep
+iweathermap/static_files/*
+!iweathermap/static_files/.gitkeep
 
-iweathermap-api/media/*
-!iweathermap-api/media/.gitkeep
+iweathermap/media/*
+!iweathermap/media/.gitkeep
 
 .devcontainer/

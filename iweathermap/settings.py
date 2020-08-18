@@ -20,6 +20,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+SETTINGS_DIR = Path(__file__).resolve(strict=True).parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/Î
@@ -44,8 +45,8 @@ INSTALLED_APPS = [
     # local apps
     'forecast',
     # third part django packages
+    'corsheaders',
     "rest_framework",
-    "rest_framework.authtoken",
     "django_filters",
     "drf_yasg",
 ]
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -121,53 +123,39 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "static_files"
+STATIC_ROOT = SETTINGS_DIR / "static_files"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = SETTINGS_DIR / "media"
 
 # Django Rest Framework settings
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated"
     ],
-    # "DEFAULT_FILTER_BACKENDS": [
-    #     "rest_framework.filters.SearchFilter",
-    #     "rest_framework.filters.OrderingFilter",
-    #     "django_filters.rest_framework.DjangoFilterBackend",
-    # ],
+    "DEFAULT_FILTER_BACKENDS": [
+        "rest_framework.filters.SearchFilter",
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_jwt.authentication.JSONWebTokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 6
 }
 
-JWT_AUTH = {
-    "JWT_SECRET_KEY": SECRET_KEY,
-    "JWT_ALGORITHM": "HS256",
-    "JWT_VERIFY": True,
-    "JWT_VERIFY_EXPIRATION": True,
-    "JWT_EXPIRATION_DELTA": datetime.timedelta(days=3),
-    "JWT_REFRESH_EXPIRATION_DELTA": datetime.timedelta(days=7),
-    "JWT_ALLOW_REFRESH": True,
-    "JWT_AUTH_HEADER_PREFIX": "JWT",
-}
 
 # Url append slash
 APPEND_SLASH = True
 
-# Email settings
-# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False, cast=bool)
-EMAIL_HOST = config("EMAIL_HOST", cast=str)
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", cast=str)
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)
-EMAIL_PORT = config("EMAIL_PORT", cast=str)
-
-
 # OpenWeatherMap settings
 OPENWEATHERMAP_API_KEY = config("OPENWEATHERMAP_API_KEY", cast=str)
+
+# CORS
+# If this is used then `CORS_ORIGIN_WHITELIST` will not have any effect
+# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = config("CORS_ORIGIN_WHITELIST", cast=Csv())
 
 
 # sentry settings

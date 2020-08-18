@@ -3,6 +3,8 @@ import requests
 from django.conf import settings
 
 from core.utils.date import strptime_utc_to_tz
+from core.utils.string import words_separator
+from core.contants import WEATHER_ICONS
 
 
 class OpenWeatherMapBase:
@@ -102,7 +104,7 @@ class OpenWeatherMap(OpenWeatherMapBase):
         """
         return {"appid": self.api_key, "units": self.units}
 
-    def get_five_days_forecast_three_hours_data(self) -> dict:
+    def get_five_days_forecast(self) -> dict:
         """5 day forecast is available at any location or city.
         It includes weather data every 3 hours.
 
@@ -116,10 +118,11 @@ class OpenWeatherMap(OpenWeatherMapBase):
                         "temp": 19.16, "feels_like": 18.2, "temp_min": 18,
                         "temp_max": 19.16, "humidity": 55, "weekday": "Monday",
                         "datetime": datetime.datetime(2020, 8, 20, 9, 0),
+                        "weather_icon": "clouds"
                     },
                     {...}
                 ],
-                "2020-10-11": [...]
+                "2020-8-21": [...]
             }
 
             # if the given city_name or state_name is not valid
@@ -130,10 +133,10 @@ class OpenWeatherMap(OpenWeatherMapBase):
         """
 
         params_payload = self.__get_default_payload()
-        params_payload.update(q=f"{self.city_name},{self.state_name}")
+        params_payload["q"] = f"{self.city_name},{self.state_name}"
 
-        response = requests.get(
-            self.__get_endpoint("forecast"), params=params_payload)
+        response = requests.get(self.__get_endpoint("forecast"),
+            params=params_payload)
 
         forecasts = {}
 
@@ -160,10 +163,24 @@ class OpenWeatherMap(OpenWeatherMapBase):
                     "temp_max": forecast_main.get('temp_max'),
                     "humidity": int(forecast_main.get('humidity')),
                     "datetime": forecast_dt,
-                    "weekday": forecast_dt.strftime("%A")
+                    "weekday": forecast_dt.strftime("%A"),
+                    "weather_icon": WEATHER_ICONS[forecast.get('weather')[0].get("main")]
                 })
 
-        return forecasts
+        raining_days = []
+
+        for dt_txt, forecast in forecasts.items():
+            # get the max humidity forecast per day
+            forecast_max_humidity = max(forecast, key=lambda d: d['humidity'])
+            raining_days.append(forecast_max_humidity.get('weekday'))
+
+        payload = {
+            "data": forecasts,
+            "raining_days_text": words_separator(raining_days)
+        }
+
+        return payload
+        # return forecasts
 
     def get_five_days_forecast_max_humidity(self) -> list:
         """Returns the next five days forecast and the current weather
@@ -181,8 +198,9 @@ class OpenWeatherMap(OpenWeatherMapBase):
             ]
 
         """
+
         forecasts = []
-        forecast_five_days = self.get_five_days_forecast_three_hours_data()
+        forecast_five_days = self.get_five_days_forecast().get("data")
 
         for dt_txt, forecast in forecast_five_days.items():
             # get the max humidity forecast per day
@@ -201,9 +219,11 @@ class OpenWeatherMap(OpenWeatherMapBase):
                 {
                     'temp': 19.16, 'feels_like': 18.2, 'temp_min': 18,
                     'temp_max': 19.16, 'humidity': 55, 'weekday': 'Monday'
-                    'datetime': datetime.datetime(2020, 8, 13, 9, 0)
+                    'datetime': datetime.datetime(2020, 8, 13, 9, 0),
+                    'weather_icon': 'clouds'
                 }
             ]
+
         """
 
         forecasts = self.get_five_days_forecast_max_humidity()

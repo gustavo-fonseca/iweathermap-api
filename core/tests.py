@@ -101,4 +101,3 @@ class OpenWeatherMapTestCase(TestCase):
             self.assertIn("temp_max", forecasts[0])
             self.assertIn("humidity", forecasts[0])
             self.assertIn("datetime", forecasts[0])
-

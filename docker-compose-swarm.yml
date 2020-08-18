@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+    nginx:
+        image: gustavofonseca/nginx-wait-for:1.0
+        ports:
+            - 81:80
+        volumes:
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf
+            - ./iweathermap/media:/media
+            - ./iweathermap/static_files:/static
+        environment:
+            - WAIT_FOR=iweathermap_backend:8000
+            - WAIT_FOR_TIMEOUT=15
+        networks:
+            - nginx_proxy
+        depends_on:
+            - iweathermap_backend
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 11s
+
+    iweathermap_backend:
+        image: gustavofonseca/iweathermap-api:0.1
+        command: bash -c "python manage.py makemigrations && 
+                          python manage.py migrate &&
+                          python manage.py collectstatic --no-input &&
+                          gunicorn iweathermap.wsgi:application -b 0:8000"
+        volumes:
+            - .:/app
+        networks:
+            - iweathermap_database_net
+            - nginx_proxy
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 11s
+
+    iweathermap_database:
+        image: postgres:12
+        ports:
+            - 5433:5432
+        environment:
+            POSTGRES_DB: ${DATABASE_NAME}
+            POSTGRES_USER: ${DATABASE_USER}
+            POSTGRES_PASSWORD: ${DATABASE_PASS}
+            TZ: ${TIMEZONE}
+            PGTZ: ${TIMEZONE}
+        volumes:
+            - iweathermap_database_data:/var/lib/postgresql/data
+        networks:
+            - iweathermap_database_net
+        depends_on: 
+            - iweathermap_backend
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 11s
+
+volumes:
+    iweathermap_database_data:
+
+networks:
+    iweathermap_database_net:
+    nginx_proxy:
