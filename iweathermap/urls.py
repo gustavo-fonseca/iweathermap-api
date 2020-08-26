@@ -1,8 +1,8 @@
-from django.urls import path, include
-from rest_framework import permissions
-from rest_framework import routers
-from drf_yasg.views import get_schema_view
+from django.urls import include, path
+
 from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions, routers
 
 from forecast.urls import forecast_router
 

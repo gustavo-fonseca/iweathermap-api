@@ -43,7 +43,7 @@ docker exec -it iweathermap_backend python manage.py test
 ```bash
 
 # run lint on project
-docker exec -it iweathermap_backend bash -c "./pylint.sh"
+docker exec -it iweathermap_backend ./lint.sh
 
 ```
 

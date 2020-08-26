@@ -1,10 +1,10 @@
-import requests
-
 from django.conf import settings
 
+import requests
+
+from core.contants import WEATHER_ICONS
 from core.utils.date import strptime_utc_to_tz
 from core.utils.string import words_separator
-from core.contants import WEATHER_ICONS
 
 
 class OpenWeatherMapBase:
@@ -94,20 +94,16 @@ class OpenWeatherMap(OpenWeatherMapBase):
 
         Returns:
             str: openweathermap's api endpoint
-
         """
         return f"{self.base_url}{service_name}"
-
 
     def __get_default_payload(self) -> dict:
         """Get default params payload for openweathermap's api
 
         Returns:
             dict: default params' payload
-
         """
         return {"appid": self.api_key, "units": self.units}
-
 
     def __compute_raining_days(self) -> list:
         """Compute raining days based on humidity forecast
@@ -116,7 +112,6 @@ class OpenWeatherMap(OpenWeatherMapBase):
             str:
 
             "Monday, Tuesday and Friday"
-
         """
 
         raining_days = []
@@ -128,7 +123,6 @@ class OpenWeatherMap(OpenWeatherMapBase):
                 raining_days.append(forecast_max_humidity.get('weekday'))
 
         return words_separator(raining_days)
-
 
     def get_five_days_forecast(self) -> dict:
         """5 day forecast is available at any location or city.
@@ -155,14 +149,12 @@ class OpenWeatherMap(OpenWeatherMapBase):
             {
 
             }
-
         """
 
         params_payload = self.__get_default_payload()
         params_payload["id"] = self.city_id
 
-        response = requests.get(self.__get_endpoint("forecast"),
-            params=params_payload)
+        response = requests.get(self.__get_endpoint("forecast"), params=params_payload)
 
         payload = {
             "data": {},
@@ -207,7 +199,6 @@ class OpenWeatherMap(OpenWeatherMapBase):
 
         return payload
 
-
     def get_five_days_forecast_max_humidity(self) -> list:
         """Get next five days forecast
         give back the max humidity forecast by day
@@ -222,7 +213,6 @@ class OpenWeatherMap(OpenWeatherMapBase):
                  'datetime': datetime.datetime(2020, 8, 13, 9, 0)
                 }
             ]
-
         """
 
         forecasts = []
@@ -234,7 +224,6 @@ class OpenWeatherMap(OpenWeatherMapBase):
             forecasts.append(forecast_max_humidity)
 
         return forecasts
-
 
     def get_days_rain_chances(self):
         """Get list of next few days with rain chances
@@ -250,7 +239,6 @@ class OpenWeatherMap(OpenWeatherMapBase):
                     'weather_icon': 'clouds'
                 }
             ]
-
         """
 
         forecasts = self.get_five_days_forecast_max_humidity()
@@ -262,7 +250,6 @@ class OpenWeatherMap(OpenWeatherMapBase):
                 rain_chances.append(forecast)
 
         return rain_chances
-
 
     def display_raining_days(self):
         """

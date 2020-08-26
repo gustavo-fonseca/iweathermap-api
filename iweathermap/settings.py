@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 
 import sentry_sdk
-
-from decouple import config, Csv
+from decouple import Csv, config
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -99,10 +98,10 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"}, # pylint: disable=line-too-long
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"}, # pylint: disable=line-too-long
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"}, # pylint: disable=line-too-long
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"} # pylint: disable=line-too-long
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"}
 ]
 
 # Internationalization

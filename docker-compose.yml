@@ -9,7 +9,7 @@ services:
             args:
                 - ENV=${ENV}
                 - TIMEZONE=${TIMEZONE}
-        command: bash -c "chmod +x pylint.sh && tail -f /dev/null"
+        command: bash -c "chmod +x lint.sh && tail -f /dev/null"
         ports:
             - 8000:8000
         volumes:

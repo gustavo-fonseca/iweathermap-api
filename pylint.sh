@@ -1,1 +1,0 @@
-find . -name "*.py" -and -not -name "0*.py" | xargs pylint

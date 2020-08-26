@@ -2,3 +2,5 @@
 pylint
 pip-tools
 ipython
+isort
+flake8

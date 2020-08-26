@@ -1,7 +1,7 @@
-from rest_framework import viewsets, permissions, mixins, status
-from rest_framework.response import Response
-from rest_framework.decorators import action
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import mixins, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from core.openweathermap import OpenWeatherMap
 from forecast.models import City
@@ -24,18 +24,15 @@ class ForecastViewSet(viewsets.ViewSet):
         Get next five days forecast. It includes weather data every 3 hours.
 
         Required query params: city_id
-
         """
         city_id = request.query_params.get("city_id", "")
 
         if city_id != "":
             weather_map = OpenWeatherMap(city_id)
-
-            return Response(weather_map.get_five_days_forecast(),
-                status=status.HTTP_200_OK)
+            return Response(weather_map.get_five_days_forecast(), status=status.HTTP_200_OK)
 
         return Response({"message": "Please provide a valid city_id"},
-            status=status.HTTP_400_BAD_REQUEST)
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class CityViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
