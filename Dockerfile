@@ -16,7 +16,7 @@ RUN echo $TIMEZONE > /etc/timezone && \
     apt-get clean
 
 # Install requirements
-COPY ./requirements /app
+COPY ./requirements/$ENV.txt /app
 
 RUN pip install --upgrade pip && \
     pip --no-cache-dir install -r /app/$ENV.txt
