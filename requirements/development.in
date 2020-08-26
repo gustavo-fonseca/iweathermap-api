@@ -4,3 +4,4 @@ pip-tools
 ipython
 isort
 flake8
+coverage

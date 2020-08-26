@@ -21,9 +21,6 @@ docker exec iweathermap_backend python manage.py loaddata forecast/fixtures/01_c
 # https://sentry.io
 SENTRY_DNS=https://xxxxxxxx@xxxx.ingest.sentry.io/xxxxx
 
-# Running tests
-docker exec iweathermap_backend python manage.py test
-
 # Running in development mode
 docker exec -it iweathermap_backend python manage.py runserver 0:8000
 
@@ -35,7 +32,7 @@ docker stack deploy -c <(docker-compose -f docker-compose-swarm.yml config) iwea
 ### Running tests
 ```bash
 
-docker exec -it iweathermap_backend python manage.py test
+docker exec -it iweathermap_backend ./test.sh
 
 ```
 

@@ -8,6 +8,55 @@ class OpenWeatherMapTestCase(TestCase):
     def setUp(self):
         self.cl_instance = OpenWeatherMap("3451328")
 
+    def test_city_id(self):
+        self.cl_instance.city_id = "3423233"
+        self.assertEqual(self.cl_instance.city_id, "3423233")
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.city_id = 3
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.city_id = []
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.city_id = {}
+
+    def test_base_url(self):
+        self.cl_instance.base_url = "https://test.io/api"
+        self.assertEqual(self.cl_instance.base_url, "https://test.io/api")
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.base_url = 3
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.base_url = []
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.base_url = {}
+
+    def test_units(self):
+        self.cl_instance.units = "metric"
+        self.assertEqual(self.cl_instance.units, "metric")
+
+        self.cl_instance.units = "imperial"
+        self.assertEqual(self.cl_instance.units, "imperial")
+
+        with self.assertRaises(ValueError):
+            self.cl_instance.units = "other"
+
+    def test_api_key(self):
+        self.cl_instance.api_key = "xsS3*7asd2;4$"
+        self.assertEqual(self.cl_instance.api_key, "xsS3*7asd2;4$")
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.api_key = 3
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.api_key = []
+
+        with self.assertRaises(TypeError):
+            self.cl_instance.api_key = {}
+
     def test_five_days_forecast(self):
         forecasts = self.cl_instance.get_five_days_forecast()
 
