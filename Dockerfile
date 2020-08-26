@@ -9,7 +9,7 @@ ARG TIMEZONE='America/Sao_Paulo'
 ENV TIMEZONE=$TIMEZONE
 
 RUN echo $TIMEZONE > /etc/timezone && \
-    apt-get update && apt-get install -y tzdata && \
+    apt-get update && apt-get install -y tzdata netcat && \
     rm /etc/localtime && \
     ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata && \

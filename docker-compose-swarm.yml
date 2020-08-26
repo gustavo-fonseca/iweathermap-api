@@ -23,10 +23,7 @@ services:
 
     iweathermap_backend:
         image: gustavofonseca/iweathermap-api:0.1
-        command: bash -c "python manage.py makemigrations && 
-                          python manage.py migrate &&
-                          python manage.py collectstatic --no-input &&
-                          gunicorn iweathermap.wsgi:application -b 0:8000"
+        command: bash -c "chmod +x ./docker-entrypoint.sh && ./docker-entrypoint.sh"
         volumes:
             - .:/app
         networks:

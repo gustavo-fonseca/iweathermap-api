@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # run pylint
 find . -name "*.py" -and -not -name "0*.py" | xargs pylint
